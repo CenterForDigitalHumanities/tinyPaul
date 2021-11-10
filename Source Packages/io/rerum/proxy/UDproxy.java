@@ -83,6 +83,8 @@ public class UDproxy extends HttpServlet {
                 error.close();
             }
             connection.disconnect();
+            response.setHeader("Access-Control-Allow-Origin", "*"); //To use this as an API, it must contain CORS headers
+            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
             response.setStatus(codeOverwrite);
             response.setHeader("Content-Type", "application/json; charset=utf-8");
             response.setCharacterEncoding("UTF-8");
