@@ -40,8 +40,6 @@ public class UDproxy extends HttpServlet {
         int codeOverwrite = 500;
         String line;
         StringBuilder sb = new StringBuilder();
-        System.out.println("Tiny Paul DLA proxy.  Trying the following url");
-        System.out.println(url);;
         if(null!=url && !url.equals("")){
             URL postUrl = new URL(request.getParameter("url"));
             HttpURLConnection connection = (HttpURLConnection) postUrl.openConnection();
@@ -84,7 +82,9 @@ public class UDproxy extends HttpServlet {
             }
             connection.disconnect();
             response.setHeader("Access-Control-Allow-Origin", "*"); //To use this as an API, it must contain CORS headers
+            response.setHeader("Access-Control-Allow-Headers", "*");
             response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            response.setHeader("Cache-Control", "max-age=31536000, must-revalidate"); //This is immutable (or at least there is no plan for it to change).  Let it be fresh for a year.
             response.setStatus(codeOverwrite);
             response.setHeader("Content-Type", "application/json; charset=utf-8");
             response.setCharacterEncoding("UTF-8");
