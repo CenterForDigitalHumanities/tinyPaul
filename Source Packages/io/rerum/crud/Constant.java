@@ -17,6 +17,8 @@ public class Constant {
     public static String RERUM_ACCESS_TOKEN_URL = "http://store.rerum.io/v1/api/accessToken.action";
     public static String RERUM_REFRESH_TOKEN_URL = "http://store.rerum.io/v1/api/refreshToken.action";
     
+    public static String DUNBAR_APP_CLAIM = "http://dunbar.reru.io/app_flag";
+    
     //https://stackoverflow.com/questions/2395737/java-relative-path-of-a-file-in-a-java-web-application
     public static String PROPERTIES_FILE_NAME = "paul.properties";
 }
