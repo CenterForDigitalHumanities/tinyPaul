@@ -40,16 +40,7 @@ public class Constant {
      * @return That user object or an empty object.
      */
     public static JSONObject userInfo(String token) throws IOException{
-        System.out.println("Trying to get user info from a token...");
-        String audience = "https://cubap.auth0.com/api/v2/";
-        String clientID = "z1DuwzGPYKmF7POW9LiAipO5MvKSDERM";
-        String domain = "cubap.auth0.com";
         String url = "https://cubap.auth0.com/userinfo"; //?access_token=token
-        JSONObject userObj = new JSONObject();
-//        JSONObject tokenRequestParams = new JSONObject();
-//        tokenRequestParams.element("client_id", clientID);
-//        tokenRequestParams.element("domain", domain);
-//        tokenRequestParams.element("audience", "https://cubap.auth0.com/api/v2/");
         JSONObject user = new JSONObject();
         try {
             URL auth0 = new URL(url);
@@ -61,13 +52,6 @@ public class Constant {
             connection.setRequestProperty("Authorization", "Bearer "+token);
             System.out.println("Make Auth0 Connection");
             connection.connect();
-//            DataOutputStream outStream = new DataOutputStream(connection.getOutputStream());
-//            // Pass in the user provided JSON for the body
-//            System.out.println("Add params to connection");
-//            outStream.writeBytes(tokenRequestParams.toString());
-//            outStream.flush();
-//            outStream.close();
-            // Execute rerum server v1 request
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
             StringBuilder sb = new StringBuilder();
             String line;
@@ -81,15 +65,17 @@ public class Constant {
             System.out.println("Send user out");
             user = JSONObject.fromObject(sb.toString());
             System.out.println(user);
-            } catch (java.net.SocketTimeoutException e) { // This specifically catches the timeout
+            } 
+            catch (java.net.SocketTimeoutException e) { // This specifically catches the timeout
                 System.out.println("The Auth0 userinfo endpoint is taking too long...");
                 System.out.println(e);
-            } catch (IOException ex) {
+            } 
+            catch (IOException ex) {
                 System.out.println("The Auth0 userinfo endpoint failed...");
                 System.out.println(ex.getCause());
                 System.out.println(ex.getMessage());
                 throw ex;
             }
-        return userObj;
+        return user;
     }
 }

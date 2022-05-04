@@ -323,7 +323,7 @@
                         body: JSON.stringify(objForImport),
                         headers: new Headers({
                             'Content-Type': 'application/json; charset=utf-8',
-                            'Authorization': 'Bearer '+localStorage.getItem("userToken")
+                            'Authorization': 'Bearer '+window.DLA_USER.authorization 
                         })
                     })
                     .then(response => response.json())
@@ -383,7 +383,7 @@
                     body: JSON.stringify(obj),
                     headers: new Headers({
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization': 'Bearer '+localStorage.getItem("userToken")
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())
@@ -410,7 +410,6 @@
              */
             async function createAction (form) {
                 let obj = form.getElementsByTagName("textarea")[0].value
-                let user = window.DLA_USER
                 try {
                     obj = JSON.parse(obj)
                 } catch (error) {
@@ -420,14 +419,13 @@
                     return false
                 }
                 obj.creator = document.querySelector("input[key='creator']").value
-                obj.__dlaUser = user
                 //Can we trust this user enough to send it to the back end so the back end doesn't have to getUserProfile(token)?
                 fetch(CREATE_URL, {
                     method: 'POST',
                     body: JSON.stringify(obj),
                     headers: new Headers({
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization': 'Bearer '+localStorage.getItem("userToken")
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())
@@ -459,7 +457,7 @@
                     body: url,
                     headers: new Headers({
                         'Content-Type': 'text/plain; charset=utf-8',
-                        'Authorization': 'Bearer '+localStorage.getItem("userToken")
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => {
@@ -515,7 +513,7 @@
                     body: JSON.stringify(obj),
                     headers: new Headers({
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization': 'Bearer '+localStorage.getItem("userToken")
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())

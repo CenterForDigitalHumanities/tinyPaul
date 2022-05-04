@@ -75,67 +75,65 @@ public class TinySave extends HttpServlet {
                 //If it was JSON
                 if(moveOn){
                     System.out.println(user);
-                    if(user.getString(Constant.DUNBAR_APP_CLAIM).equals("dla")){
-                        String pubTok = manager.getAccessToken();
-                        boolean expired = manager.checkTokenExpiry();
-                        if(expired){
-                            System.out.println("Tiny thing detected an expired token, auto getting and setting a new one...");
-                            pubTok = manager.generateNewAccessToken();
-                        }
-                        //Point to rerum server v1
-                        URL url = new URL(Constant.RERUM_API_ADDR + "/create.action");
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setDoOutput(true);
-                        connection.setDoInput(true);
-                        connection.setRequestMethod(requestMethod);
-                        connection.setUseCaches(false);
-                        connection.setInstanceFollowRedirects(true);
-                        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                        connection.setRequestProperty("Authorization", "Bearer "+pubTok);
-                        connection.connect();
-                        try{
-                            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                            byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
-                            //Pass in the user provided JSON for the body of the rerumserver v1 request
-                            //out.writeBytes(requestJSON.toString()); //something about this is breaking special chars when using this as am open endpoint API
-                            out.write(toWrite);
-                            out.flush();
-                            out.close(); 
-                            codeOverwrite = connection.getResponseCode();
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
-                            while ((line = reader.readLine()) != null){
-                                //Gather rerum server v1 response
-                                sb.append(line);
-                            }
-                            reader.close();
-                            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                                String values = "";
-                                String removeBraks = entries.getValue().toString();
-                                values = removeBraks.substring(1, removeBraks.length() -1);
-                                if(null != entries.getKey() && !entries.getKey().equals("Transfer-Encoding")){
-                                    response.setHeader(entries.getKey(), values);
-                                }
-                            }
-                        }
-                        catch(Exception ex){
-                            //Need to get the response RERUM sent back.
-                            BufferedReader error = new BufferedReader(new InputStreamReader(connection.getErrorStream(),"utf-8"));
-                            String errorLine = "";
-                            while ((errorLine = error.readLine()) != null){  
-                                sb.append(errorLine);
-                            } 
-                            error.close();
-                        }
-                        connection.disconnect();
-                        //Hand back rerumserver response as this API's response.
-                        if(manager.getAPISetting().equals("true")){
-                            response.setHeader("Access-Control-Allow-Origin", "*");
-                            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
-                        }
-                        response.setStatus(codeOverwrite);
-                        response.setHeader("Content-Type", "application/json; charset=utf-8");
-                        response.getWriter().print(sb.toString());
+                    String pubTok = manager.getAccessToken();
+                    boolean expired = manager.checkTokenExpiry();
+                    if(expired){
+                        System.out.println("Tiny thing detected an expired token, auto getting and setting a new one...");
+                        pubTok = manager.generateNewAccessToken();
                     }
+                    //Point to rerum server v1
+                    URL url = new URL(Constant.RERUM_API_ADDR + "/create.action");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setDoInput(true);
+                    connection.setRequestMethod(requestMethod);
+                    connection.setUseCaches(false);
+                    connection.setInstanceFollowRedirects(true);
+                    connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                    connection.setRequestProperty("Authorization", "Bearer "+pubTok);
+                    connection.connect();
+                    try{
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
+                        //Pass in the user provided JSON for the body of the rerumserver v1 request
+                        //out.writeBytes(requestJSON.toString()); //something about this is breaking special chars when using this as am open endpoint API
+                        out.write(toWrite);
+                        out.flush();
+                        out.close(); 
+                        codeOverwrite = connection.getResponseCode();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
+                        while ((line = reader.readLine()) != null){
+                            //Gather rerum server v1 response
+                            sb.append(line);
+                        }
+                        reader.close();
+                        for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                            String values = "";
+                            String removeBraks = entries.getValue().toString();
+                            values = removeBraks.substring(1, removeBraks.length() -1);
+                            if(null != entries.getKey() && !entries.getKey().equals("Transfer-Encoding")){
+                                response.setHeader(entries.getKey(), values);
+                            }
+                        }
+                    }
+                    catch(Exception ex){
+                        //Need to get the response RERUM sent back.
+                        BufferedReader error = new BufferedReader(new InputStreamReader(connection.getErrorStream(),"utf-8"));
+                        String errorLine = "";
+                        while ((errorLine = error.readLine()) != null){  
+                            sb.append(errorLine);
+                        } 
+                        error.close();
+                    }
+                    connection.disconnect();
+                    //Hand back rerumserver response as this API's response.
+                    if(manager.getAPISetting().equals("true")){
+                        response.setHeader("Access-Control-Allow-Origin", "*");
+                        response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+                    }
+                    response.setStatus(codeOverwrite);
+                    response.setHeader("Content-Type", "application/json; charset=utf-8");
+                    response.getWriter().print(sb.toString());
                 }
             }
             else{
