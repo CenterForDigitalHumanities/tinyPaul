@@ -62,20 +62,17 @@ public class Constant {
             }
             reader.close();
             connection.disconnect();
-            System.out.println("Send user out");
             user = JSONObject.fromObject(sb.toString());
             System.out.println(user);
-            } 
-            catch (java.net.SocketTimeoutException e) { // This specifically catches the timeout
-                System.out.println("The Auth0 userinfo endpoint is taking too long...");
-                System.out.println(e);
-            } 
-            catch (IOException ex) {
-                System.out.println("The Auth0 userinfo endpoint failed...");
-                System.out.println(ex.getCause());
-                System.out.println(ex.getMessage());
-                throw ex;
-            }
+        } 
+        catch (java.net.SocketTimeoutException e) { // This specifically catches the timeout
+            System.out.println("The Auth0 userinfo endpoint is taking too long...");
+            throw e;
+        } 
+        catch (IOException ex) {
+            System.out.println("The Auth0 userinfo endpoint failed...");
+            throw ex;
+        }
         return user;
     }
 }
