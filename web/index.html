@@ -102,7 +102,7 @@
             }        
             
             #dunbarUsersOnly{
-                display: none
+               
             }
         </style>
         <script src="https://centerfordigitalhumanities.github.io/DLA/auth.js" type="module"></script>
@@ -113,7 +113,7 @@
         <p>
             A CRUD API for Dunbar Apps.  Login with you Dunbar Apps user below.
         </p>
-        <button is="auth-button" disabled>Welcome</button>
+        <button is="auth-button" >Welcome</button>
         <input is="auth-creator" type="hidden" key="creator" />
         <div id="dunbarUsersOnly">
             <div>
@@ -410,7 +410,7 @@
              */
             async function createAction (form) {
                 let obj = form.getElementsByTagName("textarea")[0].value
-                let user = window.DLA_user
+                let user = window.DLA_USER
                 try {
                     obj = JSON.parse(obj)
                 } catch (error) {
@@ -420,8 +420,9 @@
                     return false
                 }
                 obj.creator = document.querySelector("input[key='creator']").value
+                obj.__dlaUser = user
                 //Can we trust this user enough to send it to the back end so the back end doesn't have to getUserProfile(token)?
-                fetch(CREATE_URL+"?u="+JSON.stringify(user), {
+                fetch(CREATE_URL, {
                     method: 'POST',
                     body: JSON.stringify(obj),
                     headers: new Headers({
