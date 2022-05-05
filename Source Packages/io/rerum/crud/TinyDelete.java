@@ -38,7 +38,7 @@ public class TinyDelete extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, Exception {
+        throws ServletException, IOException, Exception {
         request.setCharacterEncoding("UTF-8");
         TinyTokenManager manager = new TinyTokenManager();
         BufferedReader bodyReader = request.getReader();
