@@ -74,7 +74,6 @@ public class TinySave extends HttpServlet {
                 }       
                 //If it was JSON
                 if(moveOn){
-                    System.out.println(user);
                     String pubTok = manager.getAccessToken();
                     boolean expired = manager.checkTokenExpiry();
                     if(expired){

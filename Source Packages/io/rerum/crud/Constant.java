@@ -63,7 +63,6 @@ public class Constant {
             reader.close();
             connection.disconnect();
             user = JSONObject.fromObject(sb.toString());
-            System.out.println(user);
         } 
         catch (java.net.SocketTimeoutException e) { // This specifically catches the timeout
             System.out.println("The Auth0 userinfo endpoint is taking too long...");
