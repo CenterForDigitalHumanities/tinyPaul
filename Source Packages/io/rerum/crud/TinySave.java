@@ -52,7 +52,11 @@ public class TinySave extends HttpServlet {
         JSONObject user = new JSONObject();
         
         //Get the user from the Authorization Bearer Token
-        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String token = null;
+        if(null != request.getHeader("Authorization")){
+            token = request.getHeader("Authorization").replace("Bearer ", "");
+        }
+  
         //Get the user profile connected with the token.
         if(null != token){
             user = Constant.userInfo(token);
