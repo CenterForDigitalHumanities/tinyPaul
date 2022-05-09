@@ -37,8 +37,8 @@ public class TinyUpdate extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-        protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, Exception {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException, Exception {
         TinyTokenManager manager = new TinyTokenManager();
         BufferedReader bodyReader = request.getReader();
         StringBuilder bodyString = new StringBuilder();
@@ -49,84 +49,102 @@ public class TinyUpdate extends HttpServlet {
         JSONObject requestJSON = new JSONObject();
         String requestString;
         boolean moveOn = false;
-        //Gather user provided parameters from BODY of request, not parameters
-        while ((line = bodyReader.readLine()) != null)
-        {
-          bodyString.append(line);
-        }
-        bodyReader.close();
-        requestString = bodyString.toString();
-        try{ 
-            //JSONObject test
-            requestJSON = JSONObject.fromObject(requestString);
-            moveOn = true;
-        }
-        catch(Exception ex){
-            response.setStatus(500);
-            response.getWriter().print(ex);
-        }
-        //If it was JSON
-        if(moveOn){
-            //Get public token for requests from property file
-            String pubTok = manager.getAccessToken();
-            boolean expired = manager.checkTokenExpiry();
-            if(expired){
-                System.out.println("Tiny thing detected an expired token, auto getting and setting a new one...");
-                pubTok = manager.generateNewAccessToken();
-            }
-            //Point to rerum server v1
-            URL postUrl = new URL(Constant.RERUM_API_ADDR + "/update.action");
-            HttpURLConnection connection = (HttpURLConnection) postUrl.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setRequestMethod(requestMethod);
-            connection.setUseCaches(false);
-            connection.setInstanceFollowRedirects(true);
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            connection.setRequestProperty("Authorization", "Bearer "+pubTok);
-            connection.connect();
-            try{
-                DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
-                //Pass in the user provided JSON for the body of the rerumserver v1 request
-                //out.writeBytes(requestJSON.toString());
-                out.write(toWrite);
-                out.flush();
-                out.close(); 
-                codeOverwrite = connection.getResponseCode();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
-                while ((line = reader.readLine()) != null){
-                    //Gather rerum server v1 response
-                    sb.append(line);
+        JSONObject user = new JSONObject();
+        
+        //Get the user from the Authorization Bearer Token
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        //Get the user profile connected with the token.
+        if(null != token){
+            user = Constant.userInfo(token);
+            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getString(Constant.DUNBAR_APP_CLAIM).equals("dla")){
+                while ((line = bodyReader.readLine()) != null)
+                {
+                  bodyString.append(line);
                 }
-                reader.close();
-                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                    String values = "";
-                    String removeBraks = entries.getValue().toString();
-                    values = removeBraks.substring(1, removeBraks.length() -1);
-                    if(null != entries.getKey() && !entries.getKey().equals("Transfer-Encoding")){
-                        response.setHeader(entries.getKey(), values);
+                bodyReader.close();
+                requestString = bodyString.toString();
+                try{ 
+                    //JSONObject test
+                    requestJSON = JSONObject.fromObject(requestString);
+                    moveOn = true;
+                }
+                catch(Exception ex){
+                    response.setStatus(500);
+                    response.getWriter().print(ex);
+                }
+                //If it was JSON
+                if(moveOn){
+                    //Get public token for requests from property file
+                    String pubTok = manager.getAccessToken();
+                    boolean expired = manager.checkTokenExpiry();
+                    if(expired){
+                        System.out.println("Tiny thing detected an expired token, auto getting and setting a new one...");
+                        pubTok = manager.generateNewAccessToken();
                     }
+                    //Point to rerum server v1
+                    URL postUrl = new URL(Constant.RERUM_API_ADDR + "/update.action");
+                    HttpURLConnection connection = (HttpURLConnection) postUrl.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setDoInput(true);
+                    connection.setRequestMethod(requestMethod);
+                    connection.setUseCaches(false);
+                    connection.setInstanceFollowRedirects(true);
+                    connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                    connection.setRequestProperty("Authorization", "Bearer "+pubTok);
+                    connection.connect();
+                    try{
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
+                        //Pass in the user provided JSON for the body of the rerumserver v1 request
+                        //out.writeBytes(requestJSON.toString());
+                        out.write(toWrite);
+                        out.flush();
+                        out.close(); 
+                        codeOverwrite = connection.getResponseCode();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
+                        while ((line = reader.readLine()) != null){
+                            //Gather rerum server v1 response
+                            sb.append(line);
+                        }
+                        reader.close();
+                        for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                            String values = "";
+                            String removeBraks = entries.getValue().toString();
+                            values = removeBraks.substring(1, removeBraks.length() -1);
+                            if(null != entries.getKey() && !entries.getKey().equals("Transfer-Encoding")){
+                                response.setHeader(entries.getKey(), values);
+                            }
+                        }
+                    } catch (IOException ex) {
+                        //Need to get the response RERUM sent back.
+                        BufferedReader error = new BufferedReader(new InputStreamReader(connection.getErrorStream(),"utf-8"));
+                        String errorLine = "";
+                        while ((errorLine = error.readLine()) != null){  
+                            sb.append(errorLine);
+                        } 
+                        error.close();
+                    }
+                    connection.disconnect();
+                    if(manager.getAPISetting().equals("true")){
+                        response.setHeader("Access-Control-Allow-Origin", "*"); //To use this as an API, it must contain CORS headers
+                        response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+                    }
+                    response.setStatus(codeOverwrite);
+                    request.setCharacterEncoding("UTF-8");
+                    response.setHeader("Content-Type", "application/json; charset=utf-8");
+                    response.getWriter().print(sb.toString());
                 }
-            } catch (IOException ex) {
-                //Need to get the response RERUM sent back.
-                BufferedReader error = new BufferedReader(new InputStreamReader(connection.getErrorStream(),"utf-8"));
-                String errorLine = "";
-                while ((errorLine = error.readLine()) != null){  
-                    sb.append(errorLine);
-                } 
-                error.close();
             }
-            connection.disconnect();
-            if(manager.getAPISetting().equals("true")){
-                response.setHeader("Access-Control-Allow-Origin", "*"); //To use this as an API, it must contain CORS headers
-                response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            else{
+                response.setStatus(401);
+                response.getWriter().print("You must be a Dunbar Apps user.  Are you logged in as a Dunbar User?  Is the app you are using a Dunbar App?");
             }
-            response.setStatus(codeOverwrite);
-            request.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/json; charset=utf-8");
-            response.getWriter().print(sb.toString());
         }
+        else{
+            response.setStatus(403);
+            response.getWriter().print("You must be a Dunbar Apps user.  Please provide an access token in the Authorization header.");
+        }
+
         
     }
 

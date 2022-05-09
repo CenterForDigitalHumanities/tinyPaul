@@ -99,117 +99,127 @@
             #createJSON, #updateJSON, #overwriteJSON{
                 width: 500px;
                 height: 250px;
-            }          
+            }        
+            
+            #dunbarUsersOnly{
+               
+            }
         </style>
+        <script src="https://centerfordigitalhumanities.github.io/DLA/auth.js" type="module"></script>
     </head>
 
     <body>
-        <h1>Tiny Things</h1>
+        <h1>Tiny Paul</h1>
         <p>
-            Simple web forms to ping RERUM operations.
+            A CRUD API for Dunbar Apps.  Login with you Dunbar Apps user below.
         </p>
+        <button is="auth-button" >Welcome</button>
+        <input is="auth-creator" type="hidden" key="creator" />
+        <div id="dunbarUsersOnly">
+            <div>
+                <button role="button" onclick="showForm('create')">create</button>
+                <button role="button" onclick="showForm('rerumUpdate')">update</button>
+                <button role="button" onclick="showForm('overwrite')">overwrite</button>
+                <button role="button" onclick="showForm('deleteObj')">delete</button>
+                <button role="button" onclick="showForm('query')">query</button>
+                <button role="button" onclick="showForm('remoteUpdate')">import</button>
+            </div>
 
-        <div>
-            <button role="button" onclick="showForm('create')">create</button>
-            <button role="button" onclick="showForm('rerumUpdate')">update</button>
-            <button role="button" onclick="showForm('overwrite')">overwrite</button>
-            <button role="button" onclick="showForm('deleteObj')">delete</button>
-            <button role="button" onclick="showForm('query')">query</button>
-            <button role="button" onclick="showForm('remoteUpdate')">import</button>
+            <form id="query" action="javascript:void(0);" onsubmit="queryAction(this)" data-hidden="true">
+                <h2>Find by Property</h2>
+                <p>
+                    Enter a key and value to search RERUM for objects containing that key-value pair.  
+                   *Note RERUM supports more complex queries than this simple form (multi-key, embedded-key, wildcards, etc.)
+                </p>
+                <label for="importId">
+                    Key
+                </label>
+                <input type="text" id="queryKey" />
+                <label for="importId">
+                    Value
+                </label>
+                <input type="text" id="queryValue" />
+                <button type="submit" role="button"> Send Query </button>
+            </form>
+            
+            <form id="remoteUpdate" action="javascript:void(0);" onsubmit="importAction(this)" data-hidden="true">
+                <h2>Import Resource</h2>
+                <p>
+                    Provide the URI of an object external to RERUM to be imported into RERUM and attribute to your RERUM registered application.
+                    This results in a new object in RERUM that references the original provided URI so as not to alter the original object.
+                </p>
+                <label for="importId">
+                    URI to Import
+                </label>
+                <input type="url" id="importId" />
+                <button type="submit" role="button"> Import </button>
+            </form>
+            
+            <form id="rerumUpdate" action="javascript:void(0);" onsubmit="updateAction(this)" data-hidden="true">
+                <h2>Update Resource</h2>
+                <p>
+                    Provide the URI of an object to update.  Then, provide a new representation of the JSON object to update with.
+                    By default, this is a RESTful <a href="https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b" target="_blank">PUT update</a>.
+                    The resulting object is attributed to your RERUM registered agent.
+                </p>
+                <label for="updateId">
+                    URI to Update
+                </label>
+                <input type="url" id="updateId" />
+                <label for="updateJSON">
+                    New JSON representation
+                </label>
+                <textarea id="updateJSON"></textarea>
+                <button type="submit" role="button"> Update </button>
+            </form>
+            
+            <form id="overwrite" action="javascript:void(0);" onsubmit="overwriteAction(this)" data-hidden="true">
+                <h2>Overwrite Resource</h2>
+                <p>
+                    Provide the URI of an object to overwrite.  Then, provide a new representation of the JSON object to overwrite with.
+                    This will perform a RESTful <a href="https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b" target="_blank">PUT update</a>
+                    but will not make a new node in history.  Instead, the originating node at the provided URI will be overwritten, with no way to see
+                    how it originally existed.  Only those objects attributed to this application's RERUM registration agent can be overwritten.
+                </p>
+                <label for="overwriteId">
+                    URI to Overwrite
+                </label>
+                <input type="url" id="overwriteId" />
+                <label for="overwriteJSON">
+                    New JSON representation
+                </label>
+                <textarea id="overwriteJSON"></textarea>
+                <button type="submit" role="button"> Overwrite </button>
+            </form>
+            
+            <form id="create" action="javascript:void(0);" onsubmit="createAction(this)">
+                <h2>Create Resource</h2>
+                <p>Provide a valid JSON object to create an object in RERUM attributed to your RERUM registered application.</p>
+                <label for="createJSON">
+                    JSON to Create
+                </label>
+                <textarea id="createJSON"></textarea>
+                <button type="submit" role="button"> Create </button>
+            </form>
+            <form id="deleteObj" action="javascript:void(0);" onsubmit="deleteAction(this)" data-hidden="true">
+                <h2>Delete Resource</h2>
+                <p>
+                    Provide a URI to a RERUM object attributed to your RERUM registered application to delete it.
+                    Only those objects attributed to this application's RERUM registration agent can be deleted.
+                </p>
+                <label for="deleteId">
+                    URI to Delete
+                </label>
+                <input type="url" id="deleteId" />
+                <button type="submit" role="button"> Delete </button>
+            </form>
+
+            <div id="flash-message">
+                This &lt;div> should be invisible until a message appears.
+            </div>
+
+            <div id="obj-viewer"></div>
         </div>
-
-        <form id="query" action="javascript:void(0);" onsubmit="queryAction(this)" data-hidden="true">
-            <h2>Find by Property</h2>
-            <p>
-                Enter a key and value to search RERUM for objects containing that key-value pair.  
-               *Note RERUM supports more complex queries than this simple form (multi-key, embedded-key, wildcards, etc.)
-            </p>
-            <label for="importId">
-                Key
-            </label>
-            <input type="text" id="queryKey" />
-            <label for="importId">
-                Value
-            </label>
-            <input type="text" id="queryValue" />
-            <button type="submit" role="button"> Send Query </button>
-        </form>
-        <form id="remoteUpdate" action="javascript:void(0);" onsubmit="importAction(this)" data-hidden="true">
-            <h2>Import Resource</h2>
-            <p>
-                Provide the URI of an object external to RERUM to be imported into RERUM and attribute to your RERUM registered application.
-                This results in a new object in RERUM that references the original provided URI so as not to alter the original object.
-            </p>
-            <label for="importId">
-                URI to Import
-            </label>
-            <input type="url" id="importId" />
-            <button type="submit" role="button"> Import </button>
-        </form>
-        <form id="rerumUpdate" action="javascript:void(0);" onsubmit="updateAction(this)" data-hidden="true">
-            <h2>Update Resource</h2>
-            <p>
-                Provide the URI of an object to update.  Then, provide a new representation of the JSON object to update with.
-                By default, this is a RESTful <a href="https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b" target="_blank">PUT update</a>.
-                The resulting object is attributed to your RERUM registered agent.
-            </p>
-            <label for="updateId">
-                URI to Update
-            </label>
-            <input type="url" id="updateId" />
-            <label for="updateJSON">
-                New JSON representation
-            </label>
-            <textarea id="updateJSON"></textarea>
-            <button type="submit" role="button"> Update </button>
-        </form>
-        <form id="overwrite" action="javascript:void(0);" onsubmit="overwriteAction(this)" data-hidden="true">
-            <h2>Overwrite Resource</h2>
-            <p>
-                Provide the URI of an object to overwrite.  Then, provide a new representation of the JSON object to overwrite with.
-                This will perform a RESTful <a href="https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b" target="_blank">PUT update</a>
-                but will not make a new node in history.  Instead, the originating node at the provided URI will be overwritten, with no way to see
-                how it originally existed.  Only those objects attributed to this application's RERUM registration agent can be overwritten.
-            </p>
-            <label for="overwriteId">
-                URI to Overwrite
-            </label>
-            <input type="url" id="overwriteId" />
-            <label for="overwriteJSON">
-                New JSON representation
-            </label>
-            <textarea id="overwriteJSON"></textarea>
-            <button type="submit" role="button"> Overwrite </button>
-        </form>
-        <form id="create" action="javascript:void(0);" onsubmit="createAction(this)">
-            <h2>Create Resource</h2>
-            <p>Provide a valid JSON object to create an object in RERUM attributed to your RERUM registered application.</p>
-            <label for="createJSON">
-                JSON to Create
-            </label>
-            <textarea id="createJSON"></textarea>
-            <button type="submit" role="button"> Create </button>
-        </form>
-        <form id="deleteObj" action="javascript:void(0);" onsubmit="deleteAction(this)" data-hidden="true">
-            <h2>Delete Resource</h2>
-            <p>
-                Provide a URI to a RERUM object attributed to your RERUM registered application to delete it.
-                Only those objects attributed to this application's RERUM registration agent can be deleted.
-            </p>
-            <label for="deleteId">
-                URI to Delete
-            </label>
-            <input type="url" id="deleteId" />
-            <button type="submit" role="button"> Delete </button>
-        </form>
-        
-        <div id="flash-message">
-            This &lt;div> should be invisible until a message appears.
-        </div>
-
-        <div id="obj-viewer">
-        </div>
-
         <script>
             //These are the internal application endpoints, they call out to the RERUM actions.
             const CREATE_URL = "create"
@@ -299,6 +309,7 @@
 
             /**
              * Import an object that exists outside of RERUM into RERUM, attributed to this application's RERUM registration agent.
+             * The Authorization header must be present.  It is an access token from logging into Dunbar Apps.
              * @see /src/rerm/tokens/tiny.properties access_token entry for attribution
              * @param {type} form
              */
@@ -307,11 +318,13 @@
                 let origObj = await fetch(url)
                 .then(response => response.json())
                 .then(objForImport => {
+                    objForImport.creator = document.querySelector("input[key='creator']").value
                     fetch(UPDATE_URL, {
                         method: 'PUT',
                         body: JSON.stringify(objForImport),
                         headers: new Headers({
-                            'Content-Type': 'application/json; charset=utf-8'
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Authorization': 'Bearer '+window.DLA_USER.authorization 
                         })
                     })
                     .then(response => response.json())
@@ -342,6 +355,7 @@
             
             /**
              * Do a PUT update on an existing RERUM object.  The resulting object is attributed to this application's RERUM registration agent.
+             * The Authorization header must be present.  It is an access token from logging into Dunbar Apps.
              * @see /src/rerm/tokens/tiny.properties access_token entry for attribution
              * @param {type} form
              * @param {object} objIn An optional way to pass the new JSON representation as a parameter
@@ -365,11 +379,13 @@
                     }
                 }
                 obj["@id"] = uri
+                obj.creator = document.querySelector("input[key='creator']").value
                 fetch(UPDATE_URL, {
                     method: 'PUT',
                     body: JSON.stringify(obj),
                     headers: new Headers({
-                        'Content-Type': 'application/json; charset=utf-8'
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())
@@ -390,7 +406,8 @@
             }
             
             /**
-             * Provide a JSON object to create in RERUM.  The resulting object is attributed to this application's RERUM registration agent.
+             * Provide a JSON object to create in RERUM.  The resulting object is attributed to this user's RERUM agent from registering with Dunbar Apps.
+             * The Authorization header must be present.  It is an access token from logging into Dunbar Apps.
              * @see /src/rerm/tokens/tiny.properties access_token entry for attribution
              * @param {type} form
              */
@@ -404,11 +421,14 @@
                     document.getElementById("obj-viewer").style.display="none"
                     return false
                 }
+                obj.creator = document.querySelector("input[key='creator']").value
+                //Can we trust this user enough to send it to the back end so the back end doesn't have to getUserProfile(token)?
                 fetch(CREATE_URL, {
                     method: 'POST',
                     body: JSON.stringify(obj),
                     headers: new Headers({
-                        'Content-Type': 'application/json; charset=utf-8'
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())
@@ -430,6 +450,7 @@
             
            /**
              * Provide the URL of a RERUM object to delete.  Only those objects attributed to this application's RERUM registration agent can be deleted.
+             * The Authorization header must be present.  It is an access token from logging into Dunbar Apps.
              * @see /src/rerm/tokens/tiny.properties access_token entry for attribution
              * @param {type} form
              */
@@ -439,7 +460,8 @@
                     method: 'DELETE',
                     body: url,
                     headers: new Headers({
-                        'Content-Type': 'text/plain; charset=utf-8'
+                        'Content-Type': 'text/plain; charset=utf-8',
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => {
@@ -465,7 +487,9 @@
             
             /**
              * Overwrite the representation of a JSON object at a given URL. Note this will not create a new node in history, it will overwrite the existing node.
-             * TOnly those objects attributed to this application's RERUM registration agent can be overwritten.
+             * Only those objects attributed to this application's RERUM registration agent can be overwritten.
+             * The Authorization header must be present.  It is an access token from logging into Dunbar Apps.
+             * 
              * @see /src/rerm/tokens/tiny.properties access_token entry for attribution
              * @param {type} form
              * @param {object} objIn An optional way to pass the new JSON representation as a parameter
@@ -489,11 +513,13 @@
                     }
                 }
                 obj["@id"] = uri
+                obj.creator = document.querySelector("input[key='creator']").value
                 fetch(OVERWRITE_URL, {
                     method: 'PUT',
                     body: JSON.stringify(obj),
                     headers: new Headers({
-                        'Content-Type': 'application/json; charset=utf-8'
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Authorization': 'Bearer '+window.DLA_USER.authorization
                     })
                 })
                 .then(response => response.json())
