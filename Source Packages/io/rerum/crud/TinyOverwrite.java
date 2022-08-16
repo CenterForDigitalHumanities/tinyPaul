@@ -58,7 +58,7 @@ public class TinyOverwrite extends HttpServlet {
         //Get the user profile connected with the token.
         if(null != token){
             user = Constant.userInfo(token);
-            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getString(Constant.DUNBAR_APP_CLAIM).equals("dla")){
+            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")){
                 while ((line = bodyReader.readLine()) != null)
                 {
                   bodyString.append(line);
