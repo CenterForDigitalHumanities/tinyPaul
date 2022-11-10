@@ -199,6 +199,24 @@ public class TinyDelete extends HttpServlet {
     }
     
     /**
+     * Handles the HTTP <code>DELETE</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (Exception ex) {
+            Logger.getLogger(TinyDelete.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
      * Handles the HTTP <code>OPTIONS</code> preflight method.
      * This should be a configurable option.  Turning this on means you
      * intend for this version of Tiny Things to work like an open API.  
@@ -227,23 +245,7 @@ public class TinyDelete extends HttpServlet {
         }
     }
 
-    /**
-     * Handles the HTTP <code>DELETE</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinyDelete.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    
     
 
     /**
