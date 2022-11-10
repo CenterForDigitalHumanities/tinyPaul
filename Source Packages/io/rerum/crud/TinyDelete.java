@@ -48,17 +48,21 @@ public class TinyDelete extends HttpServlet {
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
         String requestMethod = request.getMethod();
-        boolean moveOn = true;
         JSONObject user = new JSONObject();
-        
         String token = null;
-        if(null != request.getHeader("Authorization")){
+        if(manager.getAPISetting().equals("true")){
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            response.setHeader("Vary", "Origin");
+        }
+        if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
         }
-        //Get the user profile connected with the token.
-        if(null != token){
+        if (null != token) {
+            //Get the user profile connected with the token.
             user = Constant.userInfo(token);
-            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")){
+            //Check that this user is registered with this app and has the proper permissions to do this Update
+            if (Constant.isPermitted(user)) {
                 while ((line = bodyReader.readLine()) != null)
                 {
                   bodyString.append(line);

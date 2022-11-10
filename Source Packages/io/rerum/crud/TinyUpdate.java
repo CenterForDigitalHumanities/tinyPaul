@@ -50,15 +50,20 @@ public class TinyUpdate extends HttpServlet {
         String requestString;
         boolean moveOn = false;
         JSONObject user = new JSONObject();
-        
-        String token = null;
-        if(null != request.getHeader("Authorization")){
+                String token = null;
+        if(manager.getAPISetting().equals("true")){
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            response.setHeader("Vary", "Origin");
+        }
+        if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
         }
-        //Get the user profile connected with the token.
-        if(null != token){
+        if (null != token) {
+            //Get the user profile connected with the token.
             user = Constant.userInfo(token);
-            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")){
+            //Check that this user is registered with this app and has the proper permissions to do this Update
+            if (Constant.isPermitted(user)) {
                 while ((line = bodyReader.readLine()) != null)
                 {
                   bodyString.append(line);
@@ -127,12 +132,7 @@ public class TinyUpdate extends HttpServlet {
                         error.close();
                     }
                     connection.disconnect();
-                    if(manager.getAPISetting().equals("true")){
-                        response.setHeader("Access-Control-Allow-Origin", "*"); //To use this as an API, it must contain CORS headers
-                        response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
-                    }
                     response.setStatus(codeOverwrite);
-                    request.setCharacterEncoding("UTF-8");
                     response.setHeader("Content-Type", "application/json; charset=utf-8");
                     response.getWriter().print(sb.toString());
                 }
@@ -151,23 +151,6 @@ public class TinyUpdate extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinyUpdate.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -235,31 +218,13 @@ public class TinyUpdate extends HttpServlet {
     }
     
     /**
-     * Handles the HTTP <code>DELETE</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinyDelete.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    /**
      * Returns a short description of the servlet.
      *
      * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "PUT update and object.  Creates a node in the history tree.";
     }// </editor-fold>
 
 }

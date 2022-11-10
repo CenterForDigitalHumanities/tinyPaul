@@ -50,16 +50,20 @@ public class TinySave extends HttpServlet {
         String requestString;
         boolean moveOn = false;
         JSONObject user = new JSONObject();
-        
-        String token = null;
-        if(null != request.getHeader("Authorization")){
+                String token = null;
+        if(manager.getAPISetting().equals("true")){
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            response.setHeader("Vary", "Origin");
+        }
+        if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
         }
-  
-        //Get the user profile connected with the token.
-        if(null != token){
+        if (null != token) {
+            //Get the user profile connected with the token.
             user = Constant.userInfo(token);
-            if(user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")){
+            //Check that this user is registered with this app and has the proper permissions to do this Update
+            if (Constant.isPermitted(user)) {
                 while ((line = bodyReader.readLine()) != null)
                 {
                   bodyString.append(line);
@@ -129,10 +133,6 @@ public class TinySave extends HttpServlet {
                     }
                     connection.disconnect();
                     //Hand back rerumserver response as this API's response.
-                    if(manager.getAPISetting().equals("true")){
-                        response.setHeader("Access-Control-Allow-Origin", "*");
-                        response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
-                    }
                     response.setStatus(codeOverwrite);
                     response.setHeader("Content-Type", "application/json; charset=utf-8");
                     response.getWriter().print(sb.toString());
@@ -151,23 +151,6 @@ public class TinySave extends HttpServlet {
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinySave.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -179,24 +162,6 @@ public class TinySave extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinySave.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /**
-     * Handles the HTTP <code>PUT</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             processRequest(request, response);
@@ -233,24 +198,6 @@ public class TinySave extends HttpServlet {
             Logger.getLogger(TinySave.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    /**
-     * Handles the HTTP <code>DELETE</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(TinyDelete.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 
     /**
      * Returns a short description of the servlet.
@@ -259,7 +206,7 @@ public class TinySave extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "POST create an object, and make sure it has a LOUD URI.";
     }// </editor-fold>
 
 }
