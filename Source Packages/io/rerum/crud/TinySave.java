@@ -139,12 +139,12 @@ public class TinySave extends HttpServlet {
                 }
             }
             else{
-                response.setStatus(401);
-                response.getWriter().print("You must be a Dunbar Apps user.  Are you logged in as a Dunbar User?  Is the app you are using a Dunbar App?");
+                response.setStatus(403);
+                response.getWriter().print("You are not permitted to do this.");
             }
         }
         else{
-            response.setStatus(403);
+            response.setStatus(401);
             response.getWriter().print("You must be a Dunbar Apps user.  Please provide an access token in the Authorization header.");
         }
         

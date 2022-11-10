@@ -138,7 +138,7 @@ public class TinyOverwrite extends HttpServlet {
             }
             else{
                 response.setStatus(403);
-                response.getWriter().print("You must be a Dunbar Apps user.  Are you logged in as a Dunbar User?  Is the app you are using a Dunbar App?");
+                response.getWriter().print("You are not permitted to do this.");
             }
         }
         else{
