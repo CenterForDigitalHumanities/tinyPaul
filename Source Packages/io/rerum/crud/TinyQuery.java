@@ -194,7 +194,7 @@ public class TinyQuery extends HttpServlet {
     }
     
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>PUT</code> method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -212,7 +212,7 @@ public class TinyQuery extends HttpServlet {
     }
     
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>DELETE</code> method.
      *
      * @param request servlet request
      * @param response servlet response
