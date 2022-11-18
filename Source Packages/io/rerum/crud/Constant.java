@@ -6,14 +6,10 @@
 package io.rerum.crud;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
 
 /**
@@ -28,8 +24,8 @@ public class Constant {
     public static String RERUM_ACCESS_TOKEN_URL = "http://store.rerum.io/v1/api/accessToken.action";
     public static String RERUM_REFRESH_TOKEN_URL = "http://store.rerum.io/v1/api/refreshToken.action";
     
-    public static String DUNBAR_APP_CLAIM = "http://dunbar.rerum.io/app_flag";
-    
+    public static String DUNBAR_APP_CLAIM = "http://rerum.io/app_flag";
+    public static String DUNBAR_APP_ROLES_CLAIM = "http://rerum.io/user_roles";
     //https://stackoverflow.com/questions/2395737/java-relative-path-of-a-file-in-a-java-web-application
     public static String PROPERTIES_FILE_NAME = "paul.properties";
     
@@ -73,5 +69,24 @@ public class Constant {
             throw ex;
         }
         return user;
+    }
+    
+    /**
+     * For a given user, check that they have permission to CRUD.They must be one of the following roles
+     * and must have "glossing" in their app list.
+     *   glossing_user_contributor
+     *   glossing_user_manager
+     *   glossing_user_admin
+     * @param user - A JSONObject containing the app claim and the roles claim
+     * @return boolean
+     */
+    public static boolean isPermitted(JSONObject user){
+        System.out.println(user);
+        if (user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")
+            && user.has(Constant.DUNBAR_APP_ROLES_CLAIM)
+            && (user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray("roles").contains("dunbar_user_contributor")
+            || user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray("roles").contains("dunbar_user_admin"))) 
+            {return true;}
+        else{return false;}
     }
 }
