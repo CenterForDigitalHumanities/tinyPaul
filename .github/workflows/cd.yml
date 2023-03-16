@@ -1,0 +1,25 @@
+name: TinyPaul API Deploy
+on: 
+  push:
+    branches:
+      main
+  pull_request:
+    branches:
+      main
+jobs:
+    deploy:
+      strategy: 
+        matrix:
+            node-version: [16]
+            machines: [vlcdhprdp01, vlcdhp02]
+      runs-on: ${{ matrix.machines }}
+      steps:
+        - uses: actions/checkout@v3
+        - run: |
+            cd /deploy-actions/tiny-paul/
+            rm -rf /deploy-actions/backups/dla.war
+            mv /opt/tomcat/webapps/dla.war /deploy-actions/backups/dla.war
+            git stash
+            git pull
+            ant -f build.xml -Dnb.internal.action.name=rebuild -DforceRedeploy=false -Dbrowser.context=tiny-paul clean dist
+            mv dist/dla.war /opt/tomcat/webapps/
