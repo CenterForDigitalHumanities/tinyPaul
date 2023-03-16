@@ -19,7 +19,7 @@ jobs:
         - run: |
             cd /deploy-actions/tiny-paul/
             rm -rf /deploy-actions/backups/dla.war
-            mv /opt/tomcat/webapps/dla.war /deploy-actions/backups/dla.war
+            [ -f /opt/tomcat/webapps/dla.war ] && mv /opt/tomcat/webapps/dla.war /deploy-actions/backups/dla.war
             git stash
             git pull
             ant -f build.xml -Dnb.internal.action.name=rebuild -DforceRedeploy=false -Dbrowser.context=tiny-paul clean dist
