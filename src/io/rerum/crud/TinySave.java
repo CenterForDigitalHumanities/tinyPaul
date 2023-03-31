@@ -46,7 +46,7 @@ public class TinySave extends HttpServlet {
         if(manager.getAPISetting().equals("true")){
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader("Access-Control-Allow-Headers", "*");
-            response.setHeader("Access-Control-Allow-Methods", "DELETE");
+            response.setHeader("Access-Control-Allow-Methods", "POST");
             response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
             response.setHeader("Vary", "Origin");
         }
@@ -94,7 +94,7 @@ public class TinySave extends HttpServlet {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoOutput(true);
                     connection.setDoInput(true);
-                    connection.setRequestMethod(requestMethod);
+                    connection.setRequestMethod("POST");
                     connection.setUseCaches(false);
                     connection.setInstanceFollowRedirects(true);
                     connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");

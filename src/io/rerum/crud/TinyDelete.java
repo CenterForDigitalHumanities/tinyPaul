@@ -123,13 +123,6 @@ public class TinyDelete extends HttpServlet {
                     error.close();
                 }
                 connection.disconnect();
-                if(manager.getAPISetting().equals("true")){
-                    response.setHeader("Access-Control-Allow-Origin", "*");
-                    response.setHeader("Access-Control-Allow-Headers", "*");
-                    response.setHeader("Access-Control-Allow-Methods", "DELETE");
-                    response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
-                    response.setHeader("Vary", "Origin");
-                }
                 response.setStatus(codeOverwrite);
                         //This DELETE endpoint recieves the @id as a string.  If you would prefer to pass the whole object, make this application/json and make sure you at least pass {"@id":"http://example.org/id/123"}
                 response.setHeader("Content-Type", "text/plain; charset=utf-8");
