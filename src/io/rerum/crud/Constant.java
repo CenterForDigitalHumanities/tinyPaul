@@ -18,11 +18,11 @@ import net.sf.json.JSONObject;
  */
 public class Constant {
     //AWS   http://18.218.227.205:8080/rerum_server
-    public static String RERUM_REGISTRATION_URL = "http://store.rerum.io/v1/";
-    public static String RERUM_API_ADDR = "http://store.rerum.io/v1/api";
+    public static String RERUM_REGISTRATION_URL = "http://vlcdhprdp02:3001/v1/";
+    public static String RERUM_API_ADDR = "http://vlcdhprdp02:3001/v1/api";
     //public static String RERUM_ID_PATTERN = "//store.rerum.io/v1/id";
-    public static String RERUM_ACCESS_TOKEN_URL = "http://store.rerum.io/v1/api/accessToken.action";
-    public static String RERUM_REFRESH_TOKEN_URL = "http://store.rerum.io/v1/api/refreshToken.action";
+    public static String RERUM_ACCESS_TOKEN_URL = "http://vlcdhprdp02:3001/v1/api/accessToken.action";
+    public static String RERUM_REFRESH_TOKEN_URL = "http://vlcdhprdp02:3001/v1/api/refreshToken.action";
     
     public static String DUNBAR_APP_CLAIM = "http://rerum.io/app_flag";
     public static String DUNBAR_APP_ROLES_CLAIM = "http://rerum.io/user_roles";
