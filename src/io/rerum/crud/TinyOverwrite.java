@@ -40,6 +40,13 @@ public class TinyOverwrite extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, Exception {
         TinyTokenManager manager = new TinyTokenManager();
+        if(manager.getAPISetting().equals("true")){
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            response.setHeader("Access-Control-Allow-Methods", "PUT");
+            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
+            response.setHeader("Vary", "Origin");
+        }
         BufferedReader bodyReader = request.getReader();
         StringBuilder bodyString = new StringBuilder();
         String line;
@@ -50,12 +57,8 @@ public class TinyOverwrite extends HttpServlet {
         String requestString;
         boolean moveOn = false;
         JSONObject user = new JSONObject();
-                String token = null;
-        if(manager.getAPISetting().equals("true")){
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
-            response.setHeader("Vary", "Origin");
-        }
+        String token = null;
+       
         if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
         }
@@ -93,7 +96,7 @@ public class TinyOverwrite extends HttpServlet {
                     HttpURLConnection connection = (HttpURLConnection) postUrl.openConnection();
                     connection.setDoOutput(true);
                     connection.setDoInput(true);
-                    connection.setRequestMethod(requestMethod);
+                    connection.setRequestMethod("PUT");
                     connection.setUseCaches(false);
                     connection.setInstanceFollowRedirects(true);
                     connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
@@ -242,6 +245,7 @@ public class TinyOverwrite extends HttpServlet {
                 response.setHeader("Access-Control-Allow-Origin", "*");
                 response.setHeader("Access-Control-Allow-Headers", "*");
                 response.setHeader("Access-Control-Allow-Methods", "*");
+                response.setHeader("Access-Control-Expose-Headers", "*"); //Headers are restricted, unless you explicitly expose them.  Darn Browsers.
             }
             response.setStatus(200);
             
