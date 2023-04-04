@@ -124,11 +124,11 @@ public class Constant {
                 return false;
 
             Claim appRoles = decodedToken.getClaim(Constant.DUNBAR_APP_ROLES_CLAIM);
-            List<String> gogList = (List<String>) appRoles.asMap().get(_ROLES);
+            List<String> dlaList = (List<String>) appRoles.asMap().get(_ROLES);
 
             List<String> rolesList = Arrays.asList("dunbar_user_contributor", "dunbar_user_reviewer",
                     "dunbar_user_curator");
-            Boolean hasRole = rolesList.stream().anyMatch(gogList::contains);
+            Boolean hasRole = rolesList.stream().anyMatch(dlaList::contains);
 
             // looks good, but let's verify it now
             return Boolean.TRUE.equals(hasRole) && verifyToken(token);
