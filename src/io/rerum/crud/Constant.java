@@ -10,6 +10,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.List;
+
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import net.sf.json.JSONObject;
 
 /**
@@ -28,6 +43,8 @@ public class Constant {
     public static String DUNBAR_APP_ROLES_CLAIM = "http://rerum.io/user_roles";
     //https://stackoverflow.com/questions/2395737/java-relative-path-of-a-file-in-a-java-web-application
     public static String PROPERTIES_FILE_NAME = "paul.properties";
+
+    private static String _ROLES = "roles";
     
     /**
      * The endpoints have the access token but need to know user info.
@@ -74,19 +91,73 @@ public class Constant {
     /**
      * For a given user, check that they have permission to CRUD.They must be one of the following roles
      * and must have "glossing" in their app list.
-     *   glossing_user_contributor
-     *   glossing_user_manager
-     *   glossing_user_admin
+     *   dunbar_user_contributor
+     *   dunbar_user_reviewer
+     *   dunbar_user_curator
      * @param user - A JSONObject containing the app claim and the roles claim
      * @return boolean
      */
     public static boolean isPermitted(JSONObject user){
-        System.out.println(user);
-        if (user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")
+        return (user.has(Constant.DUNBAR_APP_CLAIM) && user.getJSONArray(Constant.DUNBAR_APP_CLAIM).contains("dla")
             && user.has(Constant.DUNBAR_APP_ROLES_CLAIM)
-            && (user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray("roles").contains("dunbar_user_contributor")
-            || user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray("roles").contains("dunbar_user_admin"))) 
-            {return true;}
-        else{return false;}
+            && (user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray(_ROLES).contains("dunbar_user_contributor")
+            || user.getJSONObject(Constant.DUNBAR_APP_ROLES_CLAIM).getJSONArray(_ROLES).contains("dunbar_user_curator"))); 
     }
+
+    /**
+     * For a given user, check that they have permission to CRUD.They must be one of
+     * the following roles
+     * and must have "glossing" in their app list.
+     * dunbar_user_contributor
+     * dunbar_user_reviewer
+     * dunbar_user_curator
+     * 
+     * @param token String access token with prefix stripped
+     * @return boolean
+     */
+    public static boolean isPermitted(String token) {
+        try {
+            DecodedJWT decodedToken = JWT.decode(token);
+
+            Claim appsClaim = decodedToken.getClaim(Constant.DUNBAR_APP_CLAIM);
+            if (appsClaim.isNull())
+                return false;
+
+            Claim appRoles = decodedToken.getClaim(Constant.DUNBAR_APP_ROLES_CLAIM);
+            List<String> dlaList = (List<String>) appRoles.asMap().get(_ROLES);
+
+            List<String> rolesList = Arrays.asList("dunbar_user_contributor", "dunbar_user_reviewer",
+                    "dunbar_user_curator");
+            Boolean hasRole = rolesList.stream().anyMatch(dlaList::contains);
+
+            // looks good, but let's verify it now
+            return Boolean.TRUE.equals(hasRole) && verifyToken(token);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean verifyToken(String token) {
+        JwkProvider provider = new UrlJwkProvider("https://cubap.auth0.com/");
+        try {
+            DecodedJWT decodedToken = JWT.decode(token);
+			Jwk jwk = provider.get(decodedToken.getKeyId());
+
+    	    Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
+
+            JWTVerifier verifier = JWT.require(algorithm).withIssuer("https://cubap.auth0.com/").build();
+            verifier.verify(token);
+            return true;
+        } catch (JWTVerificationException e) {
+            // bad signature
+            e.printStackTrace();
+        } catch (JwkException e) {
+            // bad token
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

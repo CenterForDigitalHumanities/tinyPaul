@@ -63,10 +63,8 @@ public class TinyOverwrite extends HttpServlet {
             token = request.getHeader("Authorization").replace("Bearer ", "");
         }
         if (null != token) {
-            //Get the user profile connected with the token.
-            user = Constant.userInfo(token);
             //Check that this user is registered with this app and has the proper permissions to do this Update
-            if (Constant.isPermitted(user)) {
+            if (Constant.isPermitted(token)) {
                 while ((line = bodyReader.readLine()) != null)
                 {
                   bodyString.append(line);
