@@ -39,7 +39,6 @@ public class TinyDelete extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, Exception {
-        request.setCharacterEncoding("UTF-8");
         TinyTokenManager manager = new TinyTokenManager();
         if(manager.getAPISetting().equals("true")){
             response.setHeader("Access-Control-Allow-Origin", "*");
