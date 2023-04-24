@@ -61,7 +61,7 @@ public class Constant {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5 * 1000);
             connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             connection.setRequestProperty("Authorization", "Bearer "+token);
             System.out.println("Make Auth0 Connection");
             connection.connect();

@@ -39,7 +39,6 @@ public class TinyDelete extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, Exception {
-        request.setCharacterEncoding("UTF-8");
         TinyTokenManager manager = new TinyTokenManager();
         if(manager.getAPISetting().equals("true")){
             response.setHeader("Access-Control-Allow-Origin", "*");
@@ -54,8 +53,6 @@ public class TinyDelete extends HttpServlet {
         String requestString;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
-        JSONObject user = new JSONObject();
         String token = null;
         if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
@@ -85,13 +82,12 @@ public class TinyDelete extends HttpServlet {
                 connection.setUseCaches(false);
                 connection.setInstanceFollowRedirects(true);
                 connection.setRequestProperty("Authorization", "Bearer "+pubTok);
-                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
                 connection.connect();
                 try{
                     DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                     //Pass in the user provided JSON for the body of the rerumserver v1 request
                     byte[] toWrite = requestString.getBytes("UTF-8");
-                    //out.writeBytes(requestJSON.toString());
                     out.write(toWrite);
                     out.flush();
                     out.close(); 
