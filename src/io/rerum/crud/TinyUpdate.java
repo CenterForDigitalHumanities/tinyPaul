@@ -52,11 +52,9 @@ public class TinyUpdate extends HttpServlet {
         String line;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
         JSONObject requestJSON = new JSONObject();
         String requestString;
         boolean moveOn = false;
-        JSONObject user = new JSONObject();
         String token = null;
         if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
@@ -101,7 +99,7 @@ public class TinyUpdate extends HttpServlet {
                     connection.connect();
                     try{
                         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
+                        byte[] toWrite = requestString.getBytes("UTF-8");
                         //Pass in the user provided JSON for the body of the rerumserver v1 request
                         //out.writeBytes(requestJSON.toString());
                         out.write(toWrite);

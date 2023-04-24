@@ -54,8 +54,6 @@ public class TinyDelete extends HttpServlet {
         String requestString;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
-        JSONObject user = new JSONObject();
         String token = null;
         if (null != request.getHeader("Authorization")) {
             token = request.getHeader("Authorization").replace("Bearer ", "");
@@ -91,7 +89,6 @@ public class TinyDelete extends HttpServlet {
                     DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                     //Pass in the user provided JSON for the body of the rerumserver v1 request
                     byte[] toWrite = requestString.getBytes("UTF-8");
-                    //out.writeBytes(requestJSON.toString());
                     out.write(toWrite);
                     out.flush();
                     out.close(); 

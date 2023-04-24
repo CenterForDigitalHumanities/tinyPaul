@@ -73,7 +73,6 @@ public class TinyQuery extends HttpServlet {
         String line;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
         JSONObject requestJSON = new JSONObject();
         String requestString;
         boolean moveOn = false;
@@ -121,8 +120,6 @@ public class TinyQuery extends HttpServlet {
                 DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                 //Pass in the user provided JSON for the body of the rerumserver v1 request
                 byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
-                //Pass in the user provided JSON for the body of the rerumserver v1 request
-                //out.writeBytes(requestJSON.toString());
                 out.write(toWrite);
                 out.flush();
                 out.close(); 
