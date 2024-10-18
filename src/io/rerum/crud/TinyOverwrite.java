@@ -52,11 +52,9 @@ public class TinyOverwrite extends HttpServlet {
         String line;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
         JSONObject requestJSON = new JSONObject();
         String requestString;
         boolean moveOn = false;
-        JSONObject user = new JSONObject();
         String token = null;
        
         if (null != request.getHeader("Authorization")) {
@@ -103,7 +101,8 @@ public class TinyOverwrite extends HttpServlet {
                     try{
                         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                         //Pass in the user provided JSON for the body of the rerumserver v1 request
-                        out.writeBytes(requestJSON.toString());
+                        byte[] toWrite = requestString.getBytes("UTF-8");
+                        out.write(toWrite);
                         out.flush();
                         out.close(); 
                         codeOverwrite = connection.getResponseCode();

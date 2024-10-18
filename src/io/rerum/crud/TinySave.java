@@ -41,7 +41,6 @@ public class TinySave extends HttpServlet {
         String line;
         StringBuilder sb = new StringBuilder();
         int codeOverwrite = 500;
-        String requestMethod = request.getMethod();
         TinyTokenManager manager = new TinyTokenManager();
         if(manager.getAPISetting().equals("true")){
             response.setHeader("Access-Control-Allow-Origin", "*");
@@ -55,7 +54,6 @@ public class TinySave extends HttpServlet {
         JSONObject requestJSON = new JSONObject();
         String requestString;
         boolean moveOn = false;
-        JSONObject user = new JSONObject();
         String token = null;
 
         if (null != request.getHeader("Authorization")) {
@@ -100,9 +98,8 @@ public class TinySave extends HttpServlet {
                     connection.connect();
                     try{
                         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        byte[] toWrite = requestJSON.toString().getBytes("UTF-8");
                         //Pass in the user provided JSON for the body of the rerumserver v1 request
-                        //out.writeBytes(requestJSON.toString()); //something about this is breaking special chars when using this as am open endpoint API
+                        byte[] toWrite = requestString.getBytes("UTF-8");
                         out.write(toWrite);
                         out.flush();
                         out.close(); 
