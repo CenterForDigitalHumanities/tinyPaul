@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import io.rerum.tokens.TinyTokenManager;
 import java.util.List;
 import java.util.Map;
-import net.sf.json.JSONObject;
 
 /**
  *
