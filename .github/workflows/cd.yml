@@ -16,11 +16,16 @@ jobs:
       runs-on: ${{ matrix.machines }}
       steps:
         - uses: actions/checkout@v3
+        - name: Set up Java 8
+          uses: actions/setup-java@v4
+          with:
+            distribution: temurin
+            java-version: '8'
         - run: |
             cd /deploy-actions/tiny-paul/
             rm -rf /deploy-actions/backups/dla.war
             [ -f /opt/tomcat/webapps/dla.war ] && mv /opt/tomcat/webapps/dla.war /deploy-actions/backups/dla.war
             git stash
             git pull
-            ant -f build.xml -Dnb.internal.action.name=rebuild -DforceRedeploy=false -Dbrowser.context=tiny-paul clean dist
+            ant -f build.xml -Dplatforms.JDK_1.8.home="$JAVA_HOME" -Dnb.internal.action.name=rebuild -DforceRedeploy=false -Dbrowser.context=tiny-paul clean dist
             mv dist/dla.war /opt/tomcat/webapps/
